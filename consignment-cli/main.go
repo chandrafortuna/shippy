@@ -7,7 +7,7 @@ import (
 	"log"
 	"os"
 
-	pb "github.com/shippy/consignment-service/proto/consignment"
+	pb "github.com/chandrafortuna/shippy/consignment-service/proto/consignment"
 	"google.golang.org/grpc"
 )
 
