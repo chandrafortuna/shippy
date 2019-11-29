@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	pb "github.com/chandrafortuna/shippy/consignment-service/proto/consignment"
+	vesselPb "github.com/chandrafortuna/shippy/vessel-service/proto/vessel"
 	micro "github.com/micro/go-micro"
 )
 
@@ -40,9 +41,23 @@ func (repo *Repository) GetAll() []*pb.Consignment {
 
 type service struct {
 	repo *Repository
+	vesselClient vesselPb.VesselServiceClient
 }
 
 func (s *service) CreateConsignment(ctx context.Context, req *pb.Consignment, res *pb.Response) error {
+	vesselResponse, err := vesselClient.FindAvailable(ctx, vesselPb.Specification{
+		Capacity: in32(len(req.Containers)),
+		MaxWeight: req.Weight,
+	})
+
+	if err != nil {
+		return err
+	}
+
+	log.Println("Found vessel %v", vesselResponse.Vessel.Name)
+
+	req.VesselId = vesselResponse.Vessel.Id
+	
 	consignment, err := s.repo.Create(req)
 	if err != nil {
 		return err
